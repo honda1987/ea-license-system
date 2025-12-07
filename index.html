@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA License Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .license-key {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin: 10px 0;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .info-item label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .info-item .value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .code-box {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        
+        .copy-btn {
+            float: right;
+            padding: 5px 15px;
+            font-size: 12px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 EA License Management System</h1>
+            <p>ระบบจัดการ License Key สำหรับ Expert Advisor</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('generator')">🎫 สร้าง License</button>
+            <button class="tab" onclick="showTab('validator')">✅ ตรวจสอบ License</button>
+            <button class="tab" onclick="showTab('manager')">📊 จัดการ License</button>
+            <button class="tab" onclick="showTab('code')">💻 โค้ด MQL4</button>
+        </div>
+        
+        <div class="content">
+            <!-- Tab 1: License Generator -->
+            <div id="generator" class="tab-content active">
+                <h2>🎫 สร้าง License Key ใหม่</h2>
+                <div class="alert alert-info">
+                    <strong>ℹ️ คำแนะนำ:</strong> กรอกข้อมูลลูกค้าเพื่อสร้าง License Key ที่ไม่ซ้ำกัน
+                </div>
+                
+                <div class="form-group">
+                    <label>ชื่อลูกค้า</label>
+                    <input type="text" id="customerName" placeholder="ชื่อ-นามสกุล">
+                </div>
+                
+                <div class="form-group">
+                    <label>เลขบัญชี Trading (Account Number)</label>
+                    <input type="number" id="accountNumber" placeholder="เช่น 12345678">
+                </div>
+                
+                <div class="form-group">
+                    <label>ระยะเวลาใช้งาน</label>
+                    <select id="validPeriod">
+                        <option value="30">30 วัน (1 เดือน)</option>
+                        <option value="90">90 วัน (3 เดือน)</option>
+                        <option value="180">180 วัน (6 เดือน)</option>
+                        <option value="365" selected>365 วัน (1 ปี)</option>
+                        <option value="730">730 วัน (2 ปี)</option>
+                        <option value="custom">กำหนดเอง</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="customDaysGroup" style="display:none;">
+                    <label>จำนวนวันที่ต้องการ</label>
+                    <input type="number" id="customDays" placeholder="กรอกจำนวนวัน">
+                </div>
+                
+                <button class="btn btn-primary" onclick="generateLicense()">🚀 สร้าง License Key</button>
+                
+                <div id="generatorResult"></div>
+            </div>
+            
+            <!-- Tab 2: License Validator -->
+            <div id="validator" class="tab-content">
+                <h2>✅ ตรวจสอบ License Key</h2>
+                <div class="alert alert-info">
+                    <strong>ℹ️ คำแนะนำ:</strong> ใส่ License Key เพื่อตรวจสอบความถูกต้องและวันหมดอายุ
+                </div>
+                
+                <div class="form-group">
+                    <label>License Key</label>
+                    <input type="text" id="validateLicense" placeholder="XXXX-XXXX-XXXX-XXXX">
+                </div>
+                
+                <div class="form-group">
+                    <label>เลขบัญชี Trading</label>
+                    <input type="number" id="validateAccount" placeholder="เช่น 12345678">
+                </div>
+                
+                <button class="btn btn-primary" onclick="validateLicense()">🔍 ตรวจสอบ</button>
+                
+                <div id="validatorResult"></div>
+            </div>
+            
+            <!-- Tab 3: License Manager -->
+            <div id="manager" class="tab-content">
+                <h2>📊 จัดการ License ทั้งหมด</h2>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3 id="totalLicenses">0</h3>
+                        <p>License ทั้งหมด</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="activeLicenses">0</h3>
+                        <p>ใช้งานอยู่</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="expiredLicenses">0</h3>
+                        <p>หมดอายุแล้ว</p>
+                    </div>
+                </div>
+                
+                <button class="btn btn-secondary" onclick="exportLicenses()">📥 Export ข้อมูล</button>
+                <button class="btn btn-danger" onclick="clearAllLicenses()">🗑️ ลบทั้งหมด</button>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ลูกค้า</th>
+                            <th>Account</th>
+                            <th>License Key</th>
+                            <th>สร้างเมื่อ</th>
+                            <th>หมดอายุ</th>
+                            <th>สถานะ</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="licenseTable">
+                        <tr>
+                            <td colspan="7" style="text-align:center; color:#999;">ยังไม่มี License ในระบบ</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Tab 4: MQL4 Code -->
+            <div id="code" class="tab-content">
+                <h2>💻 โค้ด MQL4 สำหรับ EA</h2>
+                
+                <div class="alert alert-info">
+                    <strong>ℹ️ วิธีใช้:</strong> Copy โค้ดด้านล่างไปใส่ใน EA ของคุณ
+                </div>
+                
+                <h3>1. โค้ดสำหรับตรวจสอบ License</h3>
+                <button class="copy-btn btn btn-secondary" onclick="copyCode('mql4Code1')">📋 Copy</button>
+                <div class="code-box" id="mql4Code1">// วางโค้ดนี้ใน EA ของคุณ
+
+input string USER_LICENSE_KEY = "";  // ลูกค้ากรอก License Key ที่นี่
+
+// Secret Key (เปลี่ยนเป็นของคุณเอง!)
+string SECRET_KEY = "MySecretKey2024!@#";
+
+bool ValidateLicense()
+{
+    long account = AccountInfoInteger(ACCOUNT_LOGIN);
+    string license = USER_LICENSE_KEY;
+    
+    // ลบ dash
+    StringReplace(license, "-", "");
+    
+    if(StringLen(license) != 16)
+    {
+        Alert("License Key ไม่ถูกต้อง");
+        return false;
+    }
+    
+    // แยกส่วน
+    string part1 = StringSubstr(license, 0, 4);
+    string part2 = StringSubstr(license, 4, 4);
+    
+    // ตรวจสอบ Account
+    long acc = StringToInteger(part1);
+    if(acc != account % 10000)
+    {
+        Alert("License ไม่ตรงกับ Account นี้");
+        return false;
+    }
+    
+    // ตรวจสอบ Hash
+    string rawData = IntegerToString(account) + part2 + SECRET_KEY;
+    int hash = SimpleHash(rawData);
+    
+    string hashCheck = IntegerToString((hash >> 16) & 0xFFFF, 4, '0') + 
+                       IntegerToString(hash & 0xFFFF, 4, '0');
+    
+    if(StringSubstr(license, 8, 8) != hashCheck)
+    {
+        Alert("License Key ปลอม");
+        return false;
+    }
+    
+    Print("✅ License ถูกต้อง");
+    return true;
+}
+
+int SimpleHash(string str)
+{
+    int hash = 5381;
+    for(int i = 0; i < StringLen(str); i++)
+    {
+        hash = ((hash << 5) + hash) + StringGetCharacter(str, i);
+    }
+    return MathAbs(hash);
+}
+
+int OnInit()
+{
+    if(!ValidateLicense())
+    {
+        Alert("⛔ กรุณาใส่ License Key ที่ถูกต้อง");
+        return INIT_FAILED;
+    }
+    
+    return INIT_SUCCEEDED;
+}</div>
+
+                <h3>2. โค้ดตรวจสอบวันหมดอายุ</h3>
+                <button class="copy-btn btn btn-secondary" onclick="copyCode('mql4Code2')">📋 Copy</button>
+                <div class="code-box" id="mql4Code2">// เพิ่มการตรวจสอบวันหมดอายุ
+
+bool CheckExpiry(string license)
+{
+    StringReplace(license, "-", "");
+    string expiryPart = StringSubstr(license, 4, 4);
+    long expiryMod = StringToInteger(expiryPart);
+    
+    // คำนวณวันหมดอายุ
+    datetime now = TimeCurrent();
+    int year = TimeYear(now);
+    
+    for(int y = year; y <= year + 3; y++)
+    {
+        for(int m = 1; m <= 12; m++)
+        {
+            datetime testDate = StringToTime(
+                IntegerToString(y) + "." + 
+                IntegerToString(m) + ".01"
+            );
+            
+            if(testDate % 10000 == expiryMod)
+            {
+                if(now > testDate)
+                {
+                    Alert("⛔ License หมดอายุแล้ว");
+                    return false;
+                }
+                
+                int daysLeft = (int)((testDate - now) / 86400);
+                if(daysLeft <= 7)
+                {
+                    Alert("⚠️ License จะหมดอายุในอีก ", daysLeft, " วัน");
+                }
+                
+                return true;
+            }
+        }
+    }
+    
+    return true;
+}</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SECRET_KEY = "MySecretKey2024!@#";
+        let licenses = JSON.parse(localStorage.getItem('licenses') || '[]');
+        
+        // แสดง/ซ่อน custom days
+        document.getElementById('validPeriod').addEventListener('change', function(e) {
+            const customGroup = document.getElementById('customDaysGroup');
+            customGroup.style.display = e.target.value === 'custom' ? 'block' : 'none';
+        });
+        
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if(tabName === 'manager') {
+                updateLicenseTable();
+            }
+        }
+        
+        function simpleHash(str) {
+            let hash = 5381;
+            for(let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) + hash) + str.charCodeAt(i);
+            }
+            return Math.abs(hash);
+        }
+        
+        function generateLicense() {
+            const name = document.getElementById('customerName').value;
+            const account = document.getElementById('accountNumber').value;
+            const period = document.getElementById('validPeriod').value;
+            
+            if(!name || !account) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+            
+            let days = period === 'custom' ? 
+                      parseInt(document.getElementById('customDays').value) : 
+                      parseInt(period);
+            
+            if(!days || days <= 0) {
+                alert('กรุณากรอกจำนวนวันที่ถูกต้อง');
+                return;
+            }
+            
+            const now = new Date();
+            const expiry = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+            
+            // สร้าง License Key
+            const part1 = (parseInt(account) % 10000).toString().padStart(4, '0');
+            const part2 = (expiry.getTime() % 10000).toString().padStart(4, '0');
+            
+            const rawData = account + part2 + SECRET_KEY;
+            const hash = simpleHash(rawData);
+            
+            const part3 = ((hash >> 16) & 0xFFFF).toString().padStart(4, '0');
+            const part4 = (hash & 0xFFFF).toString().padStart(4, '0');
+            
+            const license = `${part1}-${part2}-${part3}-${part4}`;
+            
+            // บันทึก
+            const licenseData = {
+                id: Date.now(),
+                customer: name,
+                account: account,
+                license: license,
+                created: now.toISOString(),
+                expiry: expiry.toISOString(),
+                days: days
+            };
+            
+            licenses.push(licenseData);
+            localStorage.setItem('licenses', JSON.stringify(licenses));
+            
+            // แสดงผล
+            const result = `
+                <div class="result-box">
+                    <div class="alert alert-success">
+                        <strong>✅ สร้าง License Key สำเร็จ!</strong>
+                    </div>
+                    <div class="license-key">${license}</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>ลูกค้า</label>
+                            <div class="value">${name}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Account Number</label>
+                            <div class="value">${account}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>ระยะเวลา</label>
+                            <div class="value">${days} วัน</div>
+                        </div>
+                        <div class="info-item">
+                            <label>วันหมดอายุ</label>
+                            <div class="value">${expiry.toLocaleDateString('th-TH')}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px;">
+                        <button class="btn btn-secondary" onclick="copyLicense('${license}')">📋 Copy License Key</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('generatorResult').innerHTML = result;
+        }
+        
+        function validateLicense() {
+            const license = document.getElementById('validateLicense').value;
+            const account = document.getElementById('validateAccount').value;
+            
+            if(!license || !account) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+            
+            const cleanLicense = license.replace(/-/g, '');
+            
+            if(cleanLicense.length !== 16) {
+                showValidationResult(false, 'License Key ไม่ถูกต้อง: ความยาวไม่ตรง');
+                return;
+            }
+            
+            const part1 = cleanLicense.substr(0, 4);
+            const part2 = cleanLicense.substr(4, 4);
+            const part3 = cleanLicense.substr(8, 4);
+            const part4 = cleanLicense.substr(12, 4);
+            
+            // ตรวจสอบ Account
+            const accCheck = parseInt(account) % 10000;
+            if(parseInt(part1) !== accCheck) {
+                showValidationResult(false, 'License Key ไม่ตรงกับ Account นี้');
+                return;
+            }
+            
+            // ตรวจสอบ Hash
+            const rawData = account + part2 + SECRET_KEY;
+            const hash = simpleHash(rawData);
+            const hashCheck = ((hash >> 16) & 0xFFFF).toString().padStart(4, '0') + 
+                            (hash & 0xFFFF).toString().padStart(4, '0');
+            
+            if(part3 + part4 !== hashCheck) {
+                showValidationResult(false, 'License Key ปลอม');
+                return;
+            }
+            
+            // คำนวณวันหมดอายุ (ประมาณการ)
+            const expiryMod = parseInt(part2);
+            const now = new Date();
+            let expiryDate = null;
+            
+            for(let year = now.getFullYear(); year <= now.getFullYear() + 3; year++) {
+                for(let month = 0; month < 12; month++) {
+                    const testDate = new Date(year, month, 1);
+                    if(testDate.getTime() % 10000 === expiryMod) {
+                        expiryDate = testDate;
+                        break;
+                    }
+                }
+                if(expiryDate) break;
+            }
+            
+            if(expiryDate && now > expiryDate) {
+                showValidationResult(false, 'License Key หมดอายุแล้ว', expiryDate);
+                return;
+            }
+            
+            showValidationResult(true, 'License Key ถูกต้อง', expiryDate);
+        }
+        
+        function showValidationResult(valid, message, expiryDate = null) {
+            const alertClass = valid ? 'alert-success' : 'alert-danger';
+            const icon = valid ? '✅' : '❌';
+            
+            let expiryInfo = '';
+            if(expiryDate && valid) {
+                const daysLeft = Math.floor((expiryDate - new Date()) / (24 * 60 * 60 * 1000));
+                expiryInfo = `
+                    <div class="info-grid" style="margin-top:15px;">
+                        <div class="info-item">
+                            <label>วันหมดอายุ</label>
+                            <div class="value">${expiryDate.toLocaleDateString('th-TH')}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>เหลือเวลา</label>
+                            <div class="value">${daysLeft} วัน</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            const result = `
+                <div class="result-box">
+                    <div class="alert ${alertClass}">
+                        <strong>${icon} ${message}</strong>
+                    </div>
+                    ${expiryInfo}
+                </div>
+            `;
+            
+            document.getElementById('validatorResult').innerHTML = result;
+        }
+        
+        function updateLicenseTable() {
+            const tbody = document.getElementById('licenseTable');
+            const now = new Date();
+            
+            if(licenses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#999;">ยังไม่มี License ในระบบ</td></tr>';
+                document.getElementById('totalLicenses').textContent = '0';
+                document.getElementById('activeLicenses').textContent = '0';
+                document.getElementById('expiredLicenses').textContent = '0';
+                return;
+            }
+            
+            let activeCount = 0;
+            let expiredCount = 0;
+            
+            const rows = licenses.map((lic, idx) => {
+                const expiry = new Date(lic.expiry);
+                const isExpired = now > expiry;
+                
+                if(isExpired) expiredCount++;
+                else activeCount++;
+                
+                const statusBadge = isExpired ? 
+                    '<span class="status-badge status-expired">หมดอายุ</span>' :
+                    '<span class="status-badge status-active">ใช้งานได้</span>';
+                
+                return `
+                    <tr>
+                        <td>${lic.customer}</td>
+                        <td>${lic.account}</td>
+                        <td><code>${lic.license}</code></td>
+                        <td>${new Date(lic.created).toLocaleDateString('th-TH')}</td>
+                        <td>${expiry.toLocaleDateString('th-TH')}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn btn-danger" style="padding:5px 10px; font-size:12px;" onclick="deleteLicense(${idx})">ลบ</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            tbody.innerHTML = rows;
+            
+            document.getElementById('totalLicenses').textContent = licenses.length;
+            document.getElementById('activeLicenses').textContent = activeCount;
+            document.getElementById('expiredLicenses').textContent = expiredCount;
+        }
+        
+        function deleteLicense(index) {
+            if(confirm('ต้องการลบ License นี้หรือไม่?')) {
+                licenses.splice(index, 1);
+                localStorage.setItem('licenses', JSON.stringify(licenses));
+                updateLicenseTable();
+            }
+        }
+        
+        function clearAllLicenses() {
+            if(confirm('⚠️ ต้องการลบ License ทั้งหมดหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้!')) {
+                if(confirm('แน่ใจหรือไม่? ข้อมูลทั้งหมดจะถูกลบถาวร!')) {
+                    licenses = [];
+                    localStorage.removeItem('licenses');
+                    updateLicenseTable();
+                    alert('✅ ลบข้อมูลทั้งหมดเรียบร้อย');
+                }
+            }
+        }
+        
+        function exportLicenses() {
+            if(licenses.length === 0) {
+                alert('ไม่มีข้อมูลให้ Export');
+                return;
+            }
+            
+            let csv = 'ชื่อลูกค้า,Account Number,License Key,วันที่สร้าง,วันหมดอายุ,จำนวนวัน\n';
+            
+            licenses.forEach(lic => {
+                const created = new Date(lic.created).toLocaleDateString('th-TH');
+                const expiry = new Date(lic.expiry).toLocaleDateString('th-TH');
+                csv += `"${lic.customer}","${lic.account}","${lic.license}","${created}","${expiry}","${lic.days}"\n`;
+            });
+            
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `licenses_${new Date().getTime()}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert('✅ Export ข้อมูลเรียบร้อย');
+        }
+        
+        function copyLicense(license) {
+            navigator.clipboard.writeText(license).then(() => {
+                alert('✅ Copy License Key เรียบร้อย: ' + license);
+            }).catch(() => {
+                // Fallback method
+                const textArea = document.createElement('textarea');
+                textArea.value = license;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✅ Copy License Key เรียบร้อย: ' + license);
+            });
+        }
+        
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const code = codeElement.textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ Copy โค้ดเรียบร้อย');
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = code;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✅ Copy โค้ดเรียบร้อย');
+            });
+        }
+        
+        // Load data on page load
+        window.addEventListener('load', () => {
+            updateLicenseTable();
+        });
+    </script>
+</body>
+</html>
